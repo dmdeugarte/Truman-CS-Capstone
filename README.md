@@ -1,2 +1,7 @@
 # Truman-CS-Capstone
 This project is to create a reasonably advanced representation of all I have learned under the Truman Computer Science program. 
+
+A description of the project is as follows: 
+  In this project, we plan to research and develop a project to create a general manager for tools related to the tabletop role-playing game named, Dungeons and Dragons.  Two major tools that will be included will be character sheets (including creation, management, and usage in the form of actions, health, spells) and maps (defining the terrain, the objects and artifacts that would navigate the terrains, and the sprite-based enemies). In addition, we would develop graphical primitive tools such as dice, calculators, and symbols/models that would represent characters upon the maps. 
+  Furthermore, the second half of this project will be to represent this design in an easy-to-use visually pleasing format and create a proof of concept prototype in the form of a turn-based single-player game. The player implementation includes defining control the actions of either a single character or a whole party, to interact with the gaming world and the artifacts. Lastly, in the prototype, we would develop a set of challenges supported by a story. The development would incorporate OpenGL libraries and implement a range of algorithms including camera control, collision detection, terrain rendering, light control, texture rendering, animation, path finding and other graphic intensive algorithms.
+
