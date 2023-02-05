@@ -24,9 +24,8 @@ public class Map implements GShape
     {
       for (int j = 0; j < numCols; j++)
       {
-        float tileData[] = {1.2f * i, 1.2f * j, 1, 1};
-        //System.out.println("tile at " + 1.2f * i + ", " + 1.2f * j);
-        grid[i][j] = new Tile(gl, tileData, "/Textures/test-a.png");
+        float tileData[] = {i,j, 1, 1};
+        grid[i][j] = new Tile(gl, tileData, "/Textures/test.png");
       }
     }
   }
