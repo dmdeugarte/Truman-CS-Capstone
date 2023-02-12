@@ -23,8 +23,8 @@ import java.util.ArrayList;
 @SuppressWarnings("serial")
 class GLUTCanvas extends GLCanvas implements GLEventListener 
 {
-  public static int CANVAS_WIDTH = 1100; // width of the drawable
-  public static int CANVAS_HEIGHT = 700; // height of the drawable
+  public static int CANVAS_WIDTH = 800; // width of the drawable
+  public static int CANVAS_HEIGHT = 800; // height of the drawable
 
   public static final float DRAWING_WIDTH = 350f, DRAWING_HEIGHT = 350f;
   public static float GL_Width, GL_Height;
@@ -80,7 +80,7 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
     //initializing components
     drawingArtObjects = new ArrayList<GShape>();
     
-    float mapTest[] = {-200, -200, 100, 100}; //Bottom left 
+    float mapTest[] = {-175, 175, 100, -100}; //Bottom left 
     myMap = new Map(gl, mapTest, 3, 3);
     
     // adding them all in the arrayList

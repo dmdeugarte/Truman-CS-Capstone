@@ -56,7 +56,7 @@ public class Tile implements GShape
     gl.glVertex2f(0f, 0f); // v2 bottom left
     gl.glTexCoord2f(0, 1);
     gl.glVertex2f(0f, 1f); // v3 top left
-
+    
     gl.glEnd();
 
     if (texture != null) {
