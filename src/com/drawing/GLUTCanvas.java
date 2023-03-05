@@ -11,6 +11,7 @@ import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 // import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -22,15 +23,16 @@ import java.awt.Graphics2D;
 @SuppressWarnings("serial")
 class GLUTCanvas extends GLCanvas implements GLEventListener 
 {
-  public static int CANVAS_WIDTH = 1100; // width of the drawable
-  public static int CANVAS_HEIGHT = 700; // height of the drawable
+  public static int CANVAS_WIDTH = 800; // width of the drawable
+  public static int CANVAS_HEIGHT = 800; // height of the drawable
 
   public static final float DRAWING_WIDTH = 350f, DRAWING_HEIGHT = 350f;
   public static float GL_Width, GL_Height;
   
   // Setup OpenGL Graphics Renderer
   GKeyBoard keyBoard;
-//  ArrayList<GShape> drawingArtObjects;
+  Map myMap;
+  ArrayList<GShape> drawingArtObjects;
 
   /** Constructor to setup the GUI for this Component */
   public GLUTCanvas(GLCapabilities capabilities, GKeyBoard kb) 
@@ -75,8 +77,14 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
     // gl.glEnable(GL2.GL_DEPTH_TEST);
     // gl.glDepthFunc(GL2.GL_LESS);
 
-/*   // adding them all in the arrayList
-    drawingArtObjects.add(my...);*/
+    //initializing components
+    drawingArtObjects = new ArrayList<GShape>();
+    
+    float mapTest[] = {-175, 175, 10, -10}; //Bottom left 
+    myMap = new Map(gl, mapTest, 30, 30);
+    
+    // adding them all in the arrayList
+    drawingArtObjects.add(myMap);
   }
 
   /**
@@ -154,10 +162,10 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
 
     gl.glLoadIdentity(); // reset the model-view matrix
 
-/*    for (GShape artObject : drawingArtObjects) 
+    for (GShape artObject : drawingArtObjects) 
     {
       artObject.render(gl);
-    }*/
+    }
     
     gl.glFlush();
   }
