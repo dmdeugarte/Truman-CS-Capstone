@@ -20,12 +20,29 @@ public class Map implements GShape
     
     grid = new Tile[numRows][numCols];
     
+    int[][] edgeData = {{0, 0, 0, 0}, 
+        {1, 0, 0, 0}, 
+        {0, 1, 0, 1}, 
+        {1, 1, 0, 0}, 
+        {1, 1, 1, 0}, 
+        {1, 1, 1, 1}};
+    int[] numRotationsUntilAgain = {1, 4, 2, 4, 4, 1};
+    WaveFunction wf = new WaveFunction(numCols, numRows, edgeData, numRotationsUntilAgain);
+    wf.collapse();
+    
+    int[][] mapping = wf.getMapping();
+    
     for (int i = 0; i < numRows; i++)
     {
       for (int j = 0; j < numCols; j++)
       {
-        float tileData[] = {i,j, 1, 1};
-        grid[i][j] = new Tile(gl, tileData, "/Textures/test.png");
+        float tileData[] = {j,i, 1, 1};
+        
+        int gridIndex = j+i*numCols;
+        int value = wf.getSuperpositionValue(gridIndex);
+        
+        String textureString = "/Textures/PathSet/" + mapping[value][0] + ".png";
+        grid[i][j] = new Tile(gl, tileData, textureString, mapping[value][1]);
       }
     }
   }

@@ -1,19 +1,33 @@
 // Some wave function collapse algorithm based on neighbors are similar.
 // That is, tile 0 can be next to 0 or 1, 1 next to 0, 1, or 2, 2 next to 1, 2, or 3 and so on. 
-
+package com.drawing;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Arrays;
 
+/**
+ * A floating class used to sort Superpositions by their entropy
+ * @author Damian Deugarte
+ * @version 2023-03-04
+ */
 class SortByOptionsLength implements Comparator<Superposition>
 {
-  // Sort in ascending order
   public int compare(Superposition a, Superposition b)
   {
     return a.getOptions().size() - b.getOptions().size();
   }
 }
 
+/**
+ * The WaveFunction class requires the Superposition class and the State class to
+ * generate a grid of integers representing square tiles based on the received edge data 
+ * and each set of edge's rotational symmetry. 
+ * 
+ * In the future, the rotational symmetry should be detected rather than manually inputed.
+ * 
+ * @author Damian Deugarte
+ * @version 2023-03-04
+ */
 public class WaveFunction
 {
   int width;
@@ -22,6 +36,13 @@ public class WaveFunction
   State[] states;
   int[][] edgeData;
   
+  /**
+   * The WaveFunction constructor
+   * @param width the width of the grid to generate
+   * @param height the height of the grid to generate
+   * @param edgeData a matrix of integer edge data of the tiles to look at
+   * @param rotationSymmetry an array of values representing the rotational symmetry of the edge data
+   */
   public WaveFunction(int width, int height, int[][] edgeData, int[] rotationSymmetry)
   {
     this.width = width;
@@ -77,6 +98,9 @@ public class WaveFunction
     }
   }
   
+  /**
+   * Collapses every Superposition in the grid
+   */
   public void collapse()
   {
     for (int i = 0; i < grid.length; i++)
@@ -85,6 +109,9 @@ public class WaveFunction
     }
   }
   
+  /**
+   * Finds and chooses a single Superposition with the least entropy to collapse
+   */
   public void collapseOnce()
   {
     // Copy the array, to be safe
@@ -207,7 +234,8 @@ public class WaveFunction
     }
     
     /*
-    //print the grid's option sizes
+    // print the grid's option sizes 
+    // a Debugging section
     for (int i = 0; i < height; i++)
     {
       for (int j = 0; j < width; j++)
@@ -218,6 +246,11 @@ public class WaveFunction
     }*/
   }
   
+  /**
+   * A method to remove invalid values in an array by-reference
+   * @param array the ArrayList of integers to check
+   * @param valid the ArrayList of valid integers the array can hold
+   */
   private void checkValid(ArrayList<Integer> array, ArrayList<Integer> valid)
   {
     for (int i = array.size() - 1; i >= 0; i--)  // loop through the array's elements
@@ -229,6 +262,10 @@ public class WaveFunction
     }
   }
   
+  /**
+   * A method to return a mapping of State indices to their original reference value and the number of rotations
+   * @return an integer array of 2-tuples, the first value being the reference value, the second the number of rotations
+   */
   public int[][] getMapping()
   {
     int[][] mapping = new int[states.length][2];
@@ -242,6 +279,11 @@ public class WaveFunction
     return mapping;
   }
   
+  /**
+   * Prints the grid, using its integer representation, to the System console.
+   * If an N is printed, the Superposition is not yet collapsed
+   * If an integer is printed, the Superposition is collapsed to that index of an internal array of States
+   */
   public void printGrid()
   {
     for (int i = 0; i < height; i++)
@@ -254,6 +296,39 @@ public class WaveFunction
           System.out.print("N ");
       }
       System.out.println();
+    }
+  }
+  
+  /**
+   * Returns an integer representation of the grid
+   * @return -1 for an uncollapsed superposition, an integer if the superposition is collapsed
+   */
+  public int[] getGrid()
+  {
+    int[] output = new int[grid.length];
+    
+    for (int i = 0; i < output.length; i++)
+    {
+      getSuperpositionValue(i);
+    }
+    
+    return output;
+  }
+  
+  /**
+   * Returns an integer representation of a specific Superposition in the grid
+   * @param index the index to look at
+   * @return -1 for an uncollapsed superposition, an integer if the superposition is collapsed
+   */
+  public int getSuperpositionValue(int index)
+  {
+    if (grid[index].isCollapsed())
+    {
+      return grid[index].getOptions().get(0);
+    }
+    else
+    {
+      return -1;
     }
   }
 }

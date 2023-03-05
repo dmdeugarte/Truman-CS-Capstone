@@ -15,9 +15,10 @@ public class Tile implements GShape
 {
   private float vertex2f[];
   private Texture texID;
+  private int rotation;
   
   //Constructor for Tile where texture is provided
-  Tile(final GL2 gl, float vertex2f[], String textureName)
+  Tile(final GL2 gl, float vertex2f[], String textureName, int rotation)
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     // 1st and 2nd provide lower left corner point
@@ -27,6 +28,8 @@ public class Tile implements GShape
     this.texID = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
     this.texID.setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
     this.texID.setTexParameterf(gl, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);  
+    
+    this.rotation = rotation;
   }
   
   private void renderQuad(final GL2 gl, Texture texture) 
@@ -72,6 +75,13 @@ public class Tile implements GShape
   {
     gl.glPushMatrix();
     gl.glTranslatef(vertex2f[0], vertex2f[1], 0f);
+    
+    gl.glRotatef(90.0f * rotation ,0.0f ,0.0f ,1.0f);
+    if (rotation == 1 || rotation == 2)
+      gl.glTranslatef(0f, -1f, 0f);
+    if (rotation == 2 || rotation == 3)
+      gl.glTranslatef(-1f,  0f,  0f);
+    
     gl.glColor3f(1.0f, 1.0f, 1.0f); // drawing color
     gl.glScalef(vertex2f[2], vertex2f[3], 1.0f);
     renderQuad(gl, texID);

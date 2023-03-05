@@ -80,8 +80,8 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
     //initializing components
     drawingArtObjects = new ArrayList<GShape>();
     
-    float mapTest[] = {-175, 175, 100, -100}; //Bottom left 
-    myMap = new Map(gl, mapTest, 3, 3);
+    float mapTest[] = {-175, 175, 10, -10}; //Bottom left 
+    myMap = new Map(gl, mapTest, 30, 30);
     
     // adding them all in the arrayList
     drawingArtObjects.add(myMap);
