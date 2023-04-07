@@ -35,6 +35,7 @@ public class WaveFunction
   Superposition[] grid;
   State[] states;
   int[][] edgeData;
+  int[] weights;
   
   /**
    * The WaveFunction constructor
@@ -42,8 +43,9 @@ public class WaveFunction
    * @param height the height of the grid to generate
    * @param edgeData a matrix of integer edge data of the tiles to look at
    * @param rotationSymmetry an array of values representing the rotational symmetry of the edge data
+   * @param weights an array of integers as weights for each tile type
    */
-  public WaveFunction(int width, int height, int[][] edgeData, int[] rotationSymmetry)
+  public WaveFunction(int width, int height, int[][] edgeData, int[] rotationSymmetry, int[] weights)
   {
     this.width = width;
     this.height = height;
@@ -96,6 +98,13 @@ public class WaveFunction
     {
         grid[i] = new Superposition(states.length);
     }
+    
+    // safely importing the weights
+    this.weights = new int[weights.length];
+    for (int i = 0; i < weights.length; i++)
+    {
+      this.weights[i] = weights[i];
+    }
   }
   
   /**
@@ -145,7 +154,24 @@ public class WaveFunction
     
     // Pick one of the cells in the sliced copy(randomly), collapse it, pick one of its options, and setNewOptions for that new sole option
     int randomIndex = (int)(Math.random()*slicedCopy.length);    // pick a cell in the copy
-    int randomOptionsIndex = (int)(Math.random()*slicedCopy[randomIndex].getOptions().size());  // pick the index of an option of the cell
+    
+    // Picking a random possible index for the options of the Superposition, based on their weights
+    int randomOptionsIndex = 0;
+    int totalWeight = 0;
+    for (int each : slicedCopy[randomIndex].getOptions())
+    {
+      totalWeight += weights[states[each].getReference()];
+    }
+    int r = (int)(Math.random()*totalWeight);
+    int sum = 0;
+    while (r >= sum && randomOptionsIndex < slicedCopy[randomIndex].getOptions().size())
+    {
+      sum+=weights[states[slicedCopy[randomIndex].getOption(randomOptionsIndex)].getReference()];
+      randomOptionsIndex++;
+    }
+    randomOptionsIndex -= 1;
+   
+    // Assigning the chosen item 
     ArrayList<Integer> temp = new ArrayList<Integer>();
     temp.add(slicedCopy[randomIndex].getOptions().get(randomOptionsIndex));
     slicedCopy[randomIndex].setNewOptions(temp);

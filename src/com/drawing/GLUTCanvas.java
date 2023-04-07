@@ -31,7 +31,9 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
   
   // Setup OpenGL Graphics Renderer
   GKeyBoard keyBoard;
-  Map myMap;
+  //Map myMap;
+  //OLDPlayerCharacter myShip;
+  Game myGame;
   ArrayList<GShape> drawingArtObjects;
 
   /** Constructor to setup the GUI for this Component */
@@ -80,11 +82,21 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
     //initializing components
     drawingArtObjects = new ArrayList<GShape>();
     
-    float mapTest[] = {-175, 175, 10, -10}; //Bottom left 
-    myMap = new Map(gl, mapTest, 30, 30);
+    /*int numRows = 15, numCols = 15;
+    int larger = numRows > numCols ? numRows : numCols;
+    float mapTest[] = {-175, 175, DRAWING_WIDTH/larger, -DRAWING_HEIGHT/larger}; //Upper Right
+    myMap = new Map(gl, mapTest, numRows, numCols);
+    
+    float vertex2f[] = new float[] {16, -16, DRAWING_WIDTH/(larger*2), -DRAWING_HEIGHT/(larger*2)};
+    myShip = new OLDPlayerCharacter(gl, vertex2f);*/
+    
+    float gameData[] = new float[] {-DRAWING_WIDTH/2, DRAWING_HEIGHT/2, DRAWING_WIDTH, -DRAWING_HEIGHT};
+    myGame = new Game(gl, gameData);
     
     // adding them all in the arrayList
-    drawingArtObjects.add(myMap);
+    //drawingArtObjects.add(myMap);
+    //drawingArtObjects.add(myShip);
+    drawingArtObjects.add(myGame);
   }
 
   /**
@@ -181,11 +193,15 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
   /**
    * This function updates drawing based on keyboard events
    */
-  public void processKeyBoardEvents(int key) {
+  public void processKeyBoardEvents(int key) 
+  {
+    myGame.processKeyBoardEvent(key);
   }
 
-  public void processKeyBoardEventsStop() {
+  public void processKeyBoardEventsStop() 
+  {
     keyBoard.setPressReleaseStatus(false);
+    myGame.resetKeyBoardEvent();
   }
 
   /**

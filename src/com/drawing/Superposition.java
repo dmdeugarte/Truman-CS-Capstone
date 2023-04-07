@@ -69,6 +69,16 @@ public class Superposition
   }
   
   /**
+   * Returns a specific index of options
+   * @param index the index to get
+   * @return the option at that index
+   */
+  public int getOption(int index)
+  {
+    return options.get(index);
+  }
+  
+  /**
    * Removes an option the superposition could be
    * @param index the index of the option to remove
    */
