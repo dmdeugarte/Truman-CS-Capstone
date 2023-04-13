@@ -10,13 +10,15 @@ import com.jogamp.opengl.util.texture.Texture;
 public class Map implements GShape
 {
   private final int ROWDIST = 10, COLDIST = 10;
-  private float vertex2f[];
   private Tile[][] grid;
-  private int[][] edgeData;
   
+  private float vertex2f[];
   private Texture[] tileTextures;
   
   private WaveFunction wf;
+  private int[][] edgeData;
+  private int[][] mapping;
+  private int[][] wfValues;
 
   // null constructor
   public Map(final GL2 gl, float vertex2f[])
@@ -144,15 +146,35 @@ public class Map implements GShape
   {
     this.wf.collapse();
     
-    int[][] mapping = this.wf.getMapping();
+    this.mapping = this.wf.getMapping();
     
     for (int i = 0; i < numRows; i++)
     {
       for (int j = 0; j < numCols; j++)
       {
         int gridIndex = j+i*numCols;
-        int value = this.wf.getSuperpositionValue(gridIndex);
-        
+        wfValues[i][j] = this.wf.getSuperpositionValue(gridIndex);
+      }
+    }
+    
+    // To ensure that I don't check over the boundary of either matrix
+    int row = ROWDIST, col = COLDIST;
+    
+    if (numRows < ROWDIST)
+    {
+      row = numRows;
+    }
+    
+    if (numCols < COLDIST)
+    {
+      col = numCols;
+    }
+    
+    for (int i = 0; i < row; i++)
+    {
+      for (int j = 0; j < col; j++)
+      {
+        int value = wfValues[i][j]; // written out for readability
         grid[i][j].setTexture(tileTextures[mapping[value][0]]);
         grid[i][j].setEdgeDataRef(mapping[value][0]);
         grid[i][j].setRotation(mapping[value][1]);
