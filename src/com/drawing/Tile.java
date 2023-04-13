@@ -53,6 +53,21 @@ public class Tile implements GShape
     return rotation;
   }
   
+  public void setTexture(Texture textureName)
+  {
+    this.texID = textureName;
+  }
+  
+  public void setRotation(int rotation)
+  {
+    this.rotation = rotation;
+  }
+  
+  public void setEdgeDataRef(int edgeDataRef)
+  {
+    this.edgeDataRef = edgeDataRef;
+  }
+  
   private void renderQuad(final GL2 gl, Texture texture) 
   {
     gl.glEnable(GL2.GL_TEXTURE_2D);

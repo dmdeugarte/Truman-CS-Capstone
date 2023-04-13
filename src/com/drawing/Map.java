@@ -9,12 +9,33 @@ import com.jogamp.opengl.util.texture.Texture;
 
 public class Map implements GShape
 {
+  private final int ROWDIST = 10, COLDIST = 10;
   private float vertex2f[];
   private Tile[][] grid;
   private int[][] edgeData;
   
   private Texture[] tileTextures;
+  
+  private WaveFunction wf;
 
+  // null constructor
+  public Map(final GL2 gl, float vertex2f[])
+  {
+    this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
+    // 1st, 2nd two elements provides the lower left corner point
+    // 3rd, 4th element is the width and height
+    
+    this.loadTextures(gl, true);
+    
+    grid = new Tile[ROWDIST][COLDIST];
+    
+    boolean doMazeSet = true;
+    this.loadTextures(gl, doMazeSet);
+    this.loadNullGrid(gl);
+    
+    // requires user to call load and run Wave Function
+  }
+  
   // Constructor for a map of a grid of Tiles
   public Map(final GL2 gl, float vertex2f[], int numRows, int numCols)
   {
@@ -24,8 +45,56 @@ public class Map implements GShape
     // 1st, 2nd two elements provides the lower left corner point
     // 3rd, 4th element is the width and height
     
-    grid = new Tile[numRows][numCols];
+    grid = new Tile[ROWDIST][COLDIST];
     
+    this.loadTextures(gl, doMazeSet);
+    this.loadWaveFunction(doMazeSet, numRows, numCols);
+    this.loadNullGrid(gl);
+    
+    this.runWaveFunction(gl, numRows, numCols);
+  }
+  
+  private void loadTextures(final GL2 gl, boolean doMazeSet)
+  {
+    String textureNameStub;
+    int length;
+    if(!doMazeSet)
+    {
+      textureNameStub = "/Textures/PathSet/";
+      length = 6;
+    }
+    else
+    {
+      textureNameStub = "/Textures/MazeSet/";
+      length = 15;
+    }
+    
+    tileTextures = new Texture[length];
+    for (int i = 0; i < length; i++)
+    {
+      String textureName = textureNameStub + (i + ".png");
+          
+      this.tileTextures[i] = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
+      this.tileTextures[i].setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+    }
+  }
+  
+  private void loadNullGrid(final GL2 gl)
+  {
+    // Load nulls into the grid
+    for (int i = 0; i < ROWDIST; i++)
+    {
+      for (int j = 0; j < COLDIST; j++)
+      {
+        float tileData[] = {j,i, 1, 1};
+        
+        grid[i][j] = new Tile(gl, tileData, tileTextures[0], 0, 0);
+      }
+    }
+  }
+  
+  public void loadWaveFunction(boolean doMazeSet, int numRows, int numCols)
+  {
     int[] rotationData;
     int[] weights;
     
@@ -43,15 +112,6 @@ public class Map implements GShape
       edgeData = edgeDataPath;
       rotationData = rotationDataPath;
       weights = weightsPath;
-      
-      tileTextures = new Texture[edgeDataPath.length];
-      for (int i = 0; i < edgeDataPath.length; i++)
-      {
-        String textureName = "/Textures/PathSet/" + i + ".png";
-            
-        this.tileTextures[i] = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
-        this.tileTextures[i].setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
-      }
     }
     else
     {
@@ -76,31 +136,26 @@ public class Map implements GShape
       edgeData = edgeDataMaze;
       rotationData = rotationDataMaze;
       weights = weightsMaze;
-      
-      tileTextures = new Texture[edgeDataMaze.length];
-      for (int i = 0; i < edgeDataMaze.length; i++)
-      {
-        String textureName = "/Textures/MazeSet/" + i + ".png";
-            
-        this.tileTextures[i] = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
-        this.tileTextures[i].setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
-      }
     }
-    WaveFunction wf = new WaveFunction(numCols, numRows, edgeData, rotationData, weights);
-    wf.collapse();
+    this.wf = new WaveFunction(numCols, numRows, edgeData, rotationData, weights);
+  }
+  
+  public void runWaveFunction(final GL2 gl, int numRows, int numCols)
+  {
+    this.wf.collapse();
     
-    int[][] mapping = wf.getMapping();
+    int[][] mapping = this.wf.getMapping();
     
     for (int i = 0; i < numRows; i++)
     {
       for (int j = 0; j < numCols; j++)
       {
-        float tileData[] = {j,i, 1, 1};
-        
         int gridIndex = j+i*numCols;
-        int value = wf.getSuperpositionValue(gridIndex);
+        int value = this.wf.getSuperpositionValue(gridIndex);
         
-        grid[i][j] = new Tile(gl, tileData, tileTextures[mapping[value][0]], mapping[value][1], mapping[value][0]);
+        grid[i][j].setTexture(tileTextures[mapping[value][0]]);
+        grid[i][j].setEdgeDataRef(mapping[value][0]);
+        grid[i][j].setRotation(mapping[value][1]);
       }
     }
   }
