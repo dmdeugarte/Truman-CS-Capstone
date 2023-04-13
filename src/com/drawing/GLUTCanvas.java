@@ -31,8 +31,6 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
   
   // Setup OpenGL Graphics Renderer
   GKeyBoard keyBoard;
-  //Map myMap;
-  //OLDPlayerCharacter myShip;
   Game myGame;
   ArrayList<GShape> drawingArtObjects;
 
@@ -82,20 +80,9 @@ class GLUTCanvas extends GLCanvas implements GLEventListener
     //initializing components
     drawingArtObjects = new ArrayList<GShape>();
     
-    /*int numRows = 15, numCols = 15;
-    int larger = numRows > numCols ? numRows : numCols;
-    float mapTest[] = {-175, 175, DRAWING_WIDTH/larger, -DRAWING_HEIGHT/larger}; //Upper Right
-    myMap = new Map(gl, mapTest, numRows, numCols);
-    
-    float vertex2f[] = new float[] {16, -16, DRAWING_WIDTH/(larger*2), -DRAWING_HEIGHT/(larger*2)};
-    myShip = new OLDPlayerCharacter(gl, vertex2f);*/
-    
     float gameData[] = new float[] {-DRAWING_WIDTH/2, DRAWING_HEIGHT/2, DRAWING_WIDTH, -DRAWING_HEIGHT};
     myGame = new Game(gl, gameData);
     
-    // adding them all in the arrayList
-    //drawingArtObjects.add(myMap);
-    //drawingArtObjects.add(myShip);
     drawingArtObjects.add(myGame);
   }
 

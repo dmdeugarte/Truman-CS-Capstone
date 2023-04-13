@@ -3,6 +3,7 @@ package com.drawing;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
 
 public class Game implements GShape
 {
@@ -11,6 +12,7 @@ public class Game implements GShape
   private Map myMap;
   private PlayerCharacter myPC;
   private Menu mainMenu;
+  private Menu pauseMenu;
   private Menu loadingMenu;
   
   // which screen is up, what has happened
@@ -23,6 +25,7 @@ public class Game implements GShape
   
   // Menu Items
   private String[] menuOptions;
+  
   
   public Game(final GL2 gl, float[]vertex2f)
   {
@@ -38,13 +41,16 @@ public class Game implements GShape
     this.myPC = new PlayerCharacter(gl, pcData, pcEdgeData);
     
     float[] menuData = {0, 0, 1, 1};
-    menuOptions = new String[] {"New", "Load", "Continue"};
+    menuOptions = new String[] {"New", "Load"};
     this.mainMenu = new Menu(gl, menuData, "Capstone", menuOptions);
+    
+    String[] pauseOptions =  new String[] {"New", "Load", "Save", "Continue"};
+    this.pauseMenu = new Menu(gl, menuData, "Capstone", pauseOptions);
     
     this.loadingMenu = new Menu(gl, menuData, "Loading");
     
     this.menuOpen = true;
-    this.gameLive = true;
+    this.gameLive = false;
   }
   
   public void resetKeyBoardEvent() 
@@ -66,13 +72,10 @@ public class Game implements GShape
       }
       else if (key == KeyEvent.VK_ENTER)
       {
-        // tell menu to select option, receive feedback on if to change
-        int selection = mainMenu.getSelectedOption();
-        System.out.println(selection + " Selected: " + menuOptions[selection]);
+        this.processSelection(mainMenu.getSelectedOption());
       }
       else if (gameLive && (key == KeyEvent.VK_ESCAPE))
       {
-        // close the menu, return to game
         menuOpen = false;
       }
     }
@@ -119,10 +122,35 @@ public class Game implements GShape
       }
       else if (key == KeyEvent.VK_ESCAPE)
       {
-        // open the menu, with the game still live. 
-        gameLive = true;
+        // open the menu
         menuOpen = true;
       }
+    }
+  }
+  
+  private void processSelection(int selection)
+  {
+    System.out.println(selection + " Selected: " + menuOptions[selection]);
+    
+    if (selection == 0) // New
+    {
+      if (!gameLive)
+      {
+        gameLive = true;
+        menuOpen = false;
+      }
+    }
+    else if (selection == 1) // Load
+    {
+      System.out.println("Loading Not Implemented Yet");
+    }
+    else if (selection == 2) // Save
+    {
+      System.out.println("Saving Not Implemented Yet");
+    }
+    else if (selection == 3) // Continue
+    {
+      menuOpen = false;
     }
   }
   
@@ -151,8 +179,6 @@ public class Game implements GShape
       myMap.render(gl);
       myPC.render(gl);
     }
-    
-    //mainMenu.render(gl);
 
     gl.glPopMatrix();
     

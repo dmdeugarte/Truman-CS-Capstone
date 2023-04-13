@@ -17,19 +17,7 @@ public class Menu implements GShape
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     
-    float vertAdjust = 1f/(3.5f+options.length);
-    float scaling = (1f/(title.length() + 2));
-    float[] titleVertex = {scaling, vertAdjust, scaling, scaling};
-    this.title = new StringTexture(gl, titleVertex, title);
-    
-    int numOptions = options.length;
-    this.options = new StringTexture[numOptions];
-    for (int i = 0; i < numOptions; i++)
-    {
-      float horAdjust = 0.5f - scaling*options[i].length()/4;
-      float[] optionVertex = {horAdjust, (3+i)*vertAdjust, scaling/2, scaling/2};
-      this.options[i] = new StringTexture(gl, optionVertex, options[i]);
-    }
+    this.setOptions(gl, title, options);
   }
   
   public Menu(final GL2 gl, float[]vertex2f, String title)
@@ -54,6 +42,23 @@ public class Menu implements GShape
     return selectedOption;
   }
   
+  public void setOptions(final GL2 gl, String title, String[] options)
+  {
+    float vertAdjust = 1f/(3.5f+options.length);
+    float scaling = (1f/(title.length() + 2));
+    float[] titleVertex = {scaling, vertAdjust, scaling, scaling};
+    this.title = new StringTexture(gl, titleVertex, title);
+    
+    int numOptions = options.length;
+    this.options = new StringTexture[numOptions];
+    for (int i = 0; i < numOptions; i++)
+    {
+      float horAdjust = 0.5f - scaling*options[i].length()/4;
+      float[] optionVertex = {horAdjust, (3+i)*vertAdjust, scaling/2, scaling/2};
+      this.options[i] = new StringTexture(gl, optionVertex, options[i]);
+    }
+  }
+  
   public void render(final GL2 gl)
   {
     gl.glPushMatrix();
@@ -61,10 +66,6 @@ public class Menu implements GShape
     gl.glColor3f(1.0f, 1.0f, 1.0f); // drawing color
     gl.glScalef(vertex2f[2], vertex2f[3], 1.0f);
     
-    // render the selection glow
-    
-    
-    // THEN render the title and options
     title.render(gl);
     
     for (int i = 0; i < this.options.length; i++)

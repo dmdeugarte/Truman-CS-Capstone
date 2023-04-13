@@ -5,12 +5,15 @@ package com.drawing;
 
 import java.util.Arrays;
 import javax.media.opengl.GL2;
+import com.jogamp.opengl.util.texture.Texture;
 
 public class Map implements GShape
 {
   private float vertex2f[];
   private Tile[][] grid;
   private int[][] edgeData;
+  
+  private Texture[] tileTextures;
 
   // Constructor for a map of a grid of Tiles
   public Map(final GL2 gl, float vertex2f[], int numRows, int numCols)
@@ -40,6 +43,15 @@ public class Map implements GShape
       edgeData = edgeDataPath;
       rotationData = rotationDataPath;
       weights = weightsPath;
+      
+      tileTextures = new Texture[edgeDataPath.length];
+      for (int i = 0; i < edgeDataPath.length; i++)
+      {
+        String textureName = "/Textures/PathSet/" + i + ".png";
+            
+        this.tileTextures[i] = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
+        this.tileTextures[i].setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+      }
     }
     else
     {
@@ -64,6 +76,15 @@ public class Map implements GShape
       edgeData = edgeDataMaze;
       rotationData = rotationDataMaze;
       weights = weightsMaze;
+      
+      tileTextures = new Texture[edgeDataMaze.length];
+      for (int i = 0; i < edgeDataMaze.length; i++)
+      {
+        String textureName = "/Textures/MazeSet/" + i + ".png";
+            
+        this.tileTextures[i] = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
+        this.tileTextures[i].setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+      }
     }
     WaveFunction wf = new WaveFunction(numCols, numRows, edgeData, rotationData, weights);
     wf.collapse();
@@ -79,16 +100,7 @@ public class Map implements GShape
         int gridIndex = j+i*numCols;
         int value = wf.getSuperpositionValue(gridIndex);
         
-        String textureString = "/Textures/test.png"; //default png
-        if (!doMazeSet)
-        {
-          textureString = "/Textures/PathSet/" + mapping[value][0] + ".png";
-        }
-        else
-        {
-          textureString = "/Textures/MazeSet/" + mapping[value][0] + ".png";
-        }
-        grid[i][j] = new Tile(gl, tileData, textureString, mapping[value][1], mapping[value][0]);
+        grid[i][j] = new Tile(gl, tileData, tileTextures[mapping[value][0]], mapping[value][1], mapping[value][0]);
       }
     }
   }
