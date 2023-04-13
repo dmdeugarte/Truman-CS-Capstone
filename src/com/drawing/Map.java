@@ -51,7 +51,7 @@ public class Map implements GShape
     this.loadWaveFunction(doMazeSet, numRows, numCols);
     this.loadNullGrid(gl);
     
-    this.runWaveFunction(gl, numRows, numCols);
+    this.runWaveFunction(numRows, numCols);
   }
   
   private void loadTextures(final GL2 gl, boolean doMazeSet)
@@ -140,7 +140,7 @@ public class Map implements GShape
     this.wf = new WaveFunction(numCols, numRows, edgeData, rotationData, weights);
   }
   
-  public void runWaveFunction(final GL2 gl, int numRows, int numCols)
+  public void runWaveFunction(int numRows, int numCols)
   {
     this.wf.collapse();
     
