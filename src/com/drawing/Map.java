@@ -148,6 +148,8 @@ public class Map implements GShape
     
     this.mapping = this.wf.getMapping();
     
+    wfValues = new int[numRows][numCols];
+    
     for (int i = 0; i < numRows; i++)
     {
       for (int j = 0; j < numCols; j++)

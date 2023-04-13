@@ -37,6 +37,11 @@ public class Menu implements GShape
     }
   }
   
+  public void resetSelection()
+  {
+    selectedOption = 0;
+  }
+  
   public int getSelectedOption()
   {
     return selectedOption;

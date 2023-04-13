@@ -3,7 +3,6 @@ package com.drawing;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
 
 public class Game implements GShape
 {
@@ -25,6 +24,7 @@ public class Game implements GShape
   
   // Menu Items
   private String[] menuOptions;
+  private String[] pauseOptions;
   
   
   public Game(final GL2 gl, float[]vertex2f)
@@ -34,7 +34,7 @@ public class Game implements GShape
     int numRows = 10, numCols = 10;
     factor = numRows > numCols ? (1f/numRows) : (1f/numCols);
     float[] mapData = {0, 0, factor, factor};
-    this.myMap = new Map(gl, mapData, numRows, numCols);
+    this.myMap = new Map(gl, mapData);
     
     float[] pcData = {pcRowPos*factor + factor/4, pcColPos*factor + factor/4, factor/2, factor/2};
     int[] pcEdgeData = {0, 0, 0, 0};
@@ -44,7 +44,7 @@ public class Game implements GShape
     menuOptions = new String[] {"New", "Load"};
     this.mainMenu = new Menu(gl, menuData, "Capstone", menuOptions);
     
-    String[] pauseOptions =  new String[] {"New", "Load", "Save", "Continue"};
+    pauseOptions =  new String[] {"New", "Load", "Save", "Continue"};
     this.pauseMenu = new Menu(gl, menuData, "Capstone", pauseOptions);
     
     this.loadingMenu = new Menu(gl, menuData, "Loading");
@@ -60,7 +60,7 @@ public class Game implements GShape
   
   public void processKeyBoardEvent(int key) 
   {
-    if (menuOpen)
+    if (menuOpen && !gameLive)
     {
       if (key == KeyEvent.VK_UP || key == KeyEvent.VK_W)
       {
@@ -73,9 +73,27 @@ public class Game implements GShape
       else if (key == KeyEvent.VK_ENTER)
       {
         this.processSelection(mainMenu.getSelectedOption());
+        mainMenu.resetSelection();
       }
-      else if (gameLive && (key == KeyEvent.VK_ESCAPE))
+    }
+    else if (menuOpen && gameLive)
+    {
+      if (key == KeyEvent.VK_UP || key == KeyEvent.VK_W)
       {
+        pauseMenu.shiftSelection(-1);
+      }
+      else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S)
+      {
+        pauseMenu.shiftSelection(1);
+      }
+      else if (key == KeyEvent.VK_ENTER)
+      {
+        this.processSelection(pauseMenu.getSelectedOption());
+        pauseMenu.resetSelection();
+      }
+      else if (key == KeyEvent.VK_ESCAPE)
+      {
+        pauseMenu.resetSelection();
         menuOpen = false;
       }
     }
@@ -130,15 +148,15 @@ public class Game implements GShape
   
   private void processSelection(int selection)
   {
-    System.out.println(selection + " Selected: " + menuOptions[selection]);
+    System.out.println(selection + " Selected: " + pauseOptions[selection]);
     
     if (selection == 0) // New
     {
-      if (!gameLive)
-      {
         gameLive = true;
         menuOpen = false;
-      }
+        
+        myMap.loadWaveFunction(true, 10, 10);
+        myMap.runWaveFunction(10, 10);
     }
     else if (selection == 1) // Load
     {
@@ -170,9 +188,13 @@ public class Game implements GShape
     gl.glColor3f(1.0f, 1.0f, 1.0f); // drawing color
     gl.glScalef(vertex2f[2], vertex2f[3], 1.0f);
     
-    if (menuOpen)
+    if (menuOpen && !gameLive)
     {
       mainMenu.render(gl);
+    }
+    else if (menuOpen && gameLive)
+    {
+      pauseMenu.render(gl);
     }
     else
     {
