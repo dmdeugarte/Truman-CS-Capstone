@@ -7,6 +7,12 @@ import java.util.Arrays;
 import javax.media.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 
+import java.io.IOException;
+import java.io.FileWriter;
+import java.io.File;
+import java.io.FileNotFoundException;  
+import java.util.Scanner;
+
 public class Map implements GShape
 {
   private final int ROWDIST = 10, COLDIST = 10;
@@ -21,7 +27,7 @@ public class Map implements GShape
   private int[][] wfValues;
 
   // null constructor
-  public Map(final GL2 gl, float vertex2f[])
+  public Map(final GL2 gl, float vertex2f[], boolean doMazeSet)
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     // 1st, 2nd two elements provides the lower left corner point
@@ -31,11 +37,8 @@ public class Map implements GShape
     
     grid = new Tile[ROWDIST][COLDIST];
     
-    boolean doMazeSet = true;
     this.loadTextures(gl, doMazeSet);
     this.loadNullGrid(gl);
-    
-    // requires user to call load and run Wave Function
   }
   
   // Constructor for a map of a grid of Tiles
@@ -91,6 +94,34 @@ public class Map implements GShape
         float tileData[] = {j,i, 1, 1};
         
         grid[i][j] = new Tile(gl, tileData, tileTextures[0], 0, 0);
+      }
+    }
+  }
+  
+  private void fixTextures()
+  {
+    // To ensure that I don't check over the boundary of either matrix, wfValues or the grid of Tiles
+    int row = ROWDIST, col = COLDIST;
+    int numRows = wfValues.length, numCols = wfValues[0].length;
+    
+    if (numRows < ROWDIST)
+    {
+      row = numRows;
+    }
+    
+    if (numCols < COLDIST)
+    {
+      col = numCols;
+    }
+    
+    for (int i = 0; i < row; i++)
+    {
+      for (int j = 0; j < col; j++)
+      {
+        int value = wfValues[i][j]; // written out for readability
+        grid[i][j].setTexture(tileTextures[mapping[value][0]]);
+        grid[i][j].setEdgeDataRef(mapping[value][0]);
+        grid[i][j].setRotation(mapping[value][1]);
       }
     }
   }
@@ -159,29 +190,7 @@ public class Map implements GShape
       }
     }
     
-    // To ensure that I don't check over the boundary of either matrix
-    int row = ROWDIST, col = COLDIST;
-    
-    if (numRows < ROWDIST)
-    {
-      row = numRows;
-    }
-    
-    if (numCols < COLDIST)
-    {
-      col = numCols;
-    }
-    
-    for (int i = 0; i < row; i++)
-    {
-      for (int j = 0; j < col; j++)
-      {
-        int value = wfValues[i][j]; // written out for readability
-        grid[i][j].setTexture(tileTextures[mapping[value][0]]);
-        grid[i][j].setEdgeDataRef(mapping[value][0]);
-        grid[i][j].setRotation(mapping[value][1]);
-      }
-    }
+    this.fixTextures();
   }
   
   public int[] getEdgeData(int row, int col)
@@ -197,6 +206,117 @@ public class Map implements GShape
     }
     
     return newEdges;
+  }
+  
+  public boolean saveToFile(String filename)
+  {
+    try 
+    {
+      FileWriter saveFile = new FileWriter(filename);
+      saveFile.write(mapping.length + "," + wfValues.length + "," + wfValues[0].length + "\n");
+      
+      for (int i = 0; i < mapping.length; i++)
+      {
+        saveFile.write(mapping[i][0] + "," + mapping[i][1] + "\n");
+      }
+      
+      for (int r = 0; r < wfValues.length; r++)
+      {
+        for (int c = 0; c < wfValues[r].length; c++)
+        {
+          saveFile.write("" + wfValues[r][c]);
+          System.out.print(wfValues[r][c]);
+          
+          if (!(c == (wfValues[r].length - 1)))
+          {
+            saveFile.write(",");
+            System.out.print(",");
+          }
+        }
+        saveFile.write("\n");
+        System.out.println();
+      }
+      
+      saveFile.close();
+    } 
+    catch (IOException e) 
+    {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+      return false;
+    }
+    catch (Exception e)
+    {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+      return false;
+    }
+    
+    return true;
+  }
+  
+  public boolean loadFromFile(String filename)
+  {
+    try 
+    {
+      File saveFile = new File(filename);
+      Scanner scan = new Scanner(saveFile);
+      // get mapping length, numRows, numCols
+      int n=0, r=0, c=0;
+      if (scan.hasNextLine())
+      {
+        String firstLine = scan.nextLine();
+        String[] data = firstLine.split(",");
+        
+        n = Integer.parseInt(data[0]);
+        r = Integer.parseInt(data[1]);
+        c = Integer.parseInt(data[2]);
+      }
+      
+      int lineHead = 0;
+      mapping = new int[n][2];
+      while (scan.hasNextLine() && lineHead < n) 
+      {
+        String mappingLine = scan.nextLine();
+        String[] data = mappingLine.split(",");
+        
+        mapping[lineHead][0] = Integer.parseInt(data[0]);
+        mapping[lineHead][1] = Integer.parseInt(data[1]);
+        
+        lineHead++;
+      }
+      
+      wfValues = new int[r][c];
+      lineHead = 0;
+      while (scan.hasNextLine()) 
+      {
+        String valuesLine = scan.nextLine();
+        String[] data = valuesLine.split(",");
+        
+        for (int i = 0; i < c; i++)
+        {
+          wfValues[lineHead][i] = Integer.parseInt(data[i]);
+        }
+        lineHead++;
+      }
+      scan.close();
+      
+      this.fixTextures();
+    } 
+    catch (FileNotFoundException e) 
+    {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+      return false;
+    }
+    catch (Exception e)
+    {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+      return false;
+    }
+    
+    return true;
   }
   
   public void render(final GL2 gl) 

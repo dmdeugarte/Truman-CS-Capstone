@@ -34,7 +34,7 @@ public class Game implements GShape
     int numRows = 10, numCols = 10;
     factor = numRows > numCols ? (1f/numRows) : (1f/numCols);
     float[] mapData = {0, 0, factor, factor};
-    this.myMap = new Map(gl, mapData);
+    this.myMap = new Map(gl, mapData, true);
     
     float[] pcData = {pcRowPos*factor + factor/4, pcColPos*factor + factor/4, factor/2, factor/2};
     int[] pcEdgeData = {0, 0, 0, 0};
@@ -160,11 +160,15 @@ public class Game implements GShape
     }
     else if (selection == 1) // Load
     {
-      System.out.println("Loading Not Implemented Yet");
+      if (myMap.loadFromFile("test.txt"))
+      {
+        gameLive = true;
+        menuOpen = false;
+      }
     }
     else if (selection == 2) // Save
     {
-      System.out.println("Saving Not Implemented Yet");
+      myMap.saveToFile("test.txt");
     }
     else if (selection == 3) // Continue
     {
