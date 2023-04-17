@@ -103,29 +103,40 @@ public class State
     for (int i = 0; i < tiles.length; i++)
     {
       // UP
-      if (tiles[i].getEdge(2) == this.getEdge(0))
+      if (tiles[i].getEdge(2) == reverseInt(this.getEdge(0)))
       {
         this.up.add(i);
       }
       
       // RIGHT
-      if (tiles[i].getEdge(3) == this.getEdge(1))
+      if (tiles[i].getEdge(3) == reverseInt(this.getEdge(1)))
       {
         this.right.add(i);
       }
       
       // DOWN
-      if (tiles[i].getEdge(0) == this.getEdge(2))
+      if (tiles[i].getEdge(0) == reverseInt(this.getEdge(2)))
       {
         this.down.add(i);
       }
       
       // LEFT
-      if (tiles[i].getEdge(1) == this.getEdge(3))
+      if (tiles[i].getEdge(1) == reverseInt(this.getEdge(3)))
       {
         this.left.add(i);
       }
     }
+  }
+  
+  /**
+   * Reverses a 3 bit integer
+   * @param num the integer to reverse
+   * @return the reverse of the integer
+   */
+  private int reverseInt(int num)
+  {
+    int result = ((num&4)>>2)|(num&2)|((num&1)<<2);
+    return result;
   }
   
   /**

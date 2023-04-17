@@ -16,20 +16,56 @@ public class Tile implements GShape
   private float vertex2f[];
   private Texture texID;
   private int rotation;
+  private int edgeDataRef;
   
-  //Constructor for Tile where texture is provided
-  Tile(final GL2 gl, float vertex2f[], String textureName, int rotation)
+  //Constructor for Tile where texture String is provided
+  Tile(final GL2 gl, float vertex2f[], String textureName, int rotation, int edgeDataRef)
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
+    this.rotation = rotation;
+    this.edgeDataRef = edgeDataRef;
     // 1st and 2nd provide lower left corner point
     // 3rd provides color
     
     // texture name should be of form "/folder/extraNameString-" + clarifying int + ".png"
     this.texID = GTextureUtil.loadTextureProjectDir(gl, textureName, "PNG");
     this.texID.setTexParameterf(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
-    this.texID.setTexParameterf(gl, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);  
-    
+  }
+  
+  Tile(final GL2 gl, float vertex2f[], Texture textureName, int rotation, int edgeDataRef)
+  {
+    this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     this.rotation = rotation;
+    this.edgeDataRef = edgeDataRef;
+    // 1st and 2nd provide lower left corner point
+    // 3rd provides color
+    
+    this.texID = textureName;
+  }
+  
+  public int getEdgeDataRef()
+  {
+    return edgeDataRef;
+  }
+  
+  public int getRotation()
+  {
+    return rotation;
+  }
+  
+  public void setTexture(Texture textureName)
+  {
+    this.texID = textureName;
+  }
+  
+  public void setRotation(int rotation)
+  {
+    this.rotation = rotation;
+  }
+  
+  public void setEdgeDataRef(int edgeDataRef)
+  {
+    this.edgeDataRef = edgeDataRef;
   }
   
   private void renderQuad(final GL2 gl, Texture texture) 
