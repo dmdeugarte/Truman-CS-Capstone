@@ -15,8 +15,10 @@ import java.util.Scanner;
 
 public class Map implements GShape
 {
-  private final int ROWDIST = 10, COLDIST = 10;
+  private int displayRows, displayCols;
   private Tile[][] grid;
+  private int focusRow, focusCol;
+  private int rowShift, colShift;
   
   private float vertex2f[];
   private Texture[] tileTextures;
@@ -26,8 +28,8 @@ public class Map implements GShape
   private int[][] mapping;
   private int[][] wfValues;
 
-  // null constructor
-  public Map(final GL2 gl, float vertex2f[], boolean doMazeSet)
+  // default "null" constructor
+  public Map(final GL2 gl, float vertex2f[], boolean doMazeSet, int displayRows, int displayCols)
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     // 1st, 2nd two elements provides the lower left corner point
@@ -35,28 +37,33 @@ public class Map implements GShape
     
     this.loadTextures(gl, true);
     
-    grid = new Tile[ROWDIST][COLDIST];
+    this.displayRows = displayRows;
+    this.displayCols = displayCols;
+    
+    grid = new Tile[displayRows][displayCols];
     
     this.loadTextures(gl, doMazeSet);
     this.loadNullGrid(gl);
   }
   
   // Constructor for a map of a grid of Tiles
-  public Map(final GL2 gl, float vertex2f[], int numRows, int numCols)
+  // sizeData is of {displayRows, displayCols, gridRows, gridCols}
+  public Map(final GL2 gl, float vertex2f[], boolean doMazeSet, int[] sizeData)
   {
-    boolean doMazeSet = true;
-    
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     // 1st, 2nd two elements provides the lower left corner point
     // 3rd, 4th element is the width and height
     
-    grid = new Tile[ROWDIST][COLDIST];
+    this.displayRows = sizeData[0];
+    this.displayCols = sizeData[1];
+    
+    grid = new Tile[displayRows][displayCols];
     
     this.loadTextures(gl, doMazeSet);
-    this.loadWaveFunction(doMazeSet, numRows, numCols);
+    this.loadWaveFunction(doMazeSet, sizeData[2], sizeData[3]);
     this.loadNullGrid(gl);
     
-    this.runWaveFunction(numRows, numCols);
+    this.runWaveFunction(sizeData[2], sizeData[3]);
   }
   
   private void loadTextures(final GL2 gl, boolean doMazeSet)
@@ -87,9 +94,9 @@ public class Map implements GShape
   private void loadNullGrid(final GL2 gl)
   {
     // Load nulls into the grid
-    for (int i = 0; i < ROWDIST; i++)
+    for (int i = 0; i < displayRows; i++)
     {
-      for (int j = 0; j < COLDIST; j++)
+      for (int j = 0; j < displayCols; j++)
       {
         float tileData[] = {j,i, 1, 1};
         
@@ -101,15 +108,15 @@ public class Map implements GShape
   private void fixTextures()
   {
     // To ensure that I don't check over the boundary of either matrix, wfValues or the grid of Tiles
-    int row = ROWDIST, col = COLDIST;
+    int row = displayRows, col = displayCols;
     int numRows = wfValues.length, numCols = wfValues[0].length;
     
-    if (numRows < ROWDIST)
+    if (numRows < displayRows)
     {
       row = numRows;
     }
     
-    if (numCols < COLDIST)
+    if (numCols < displayCols)
     {
       col = numCols;
     }
@@ -118,12 +125,80 @@ public class Map implements GShape
     {
       for (int j = 0; j < col; j++)
       {
-        int value = wfValues[i][j]; // written out for readability
+        int r = rowShift + i;
+        int c = colShift + j;
+        
+        int value = wfValues[r][c]; // written out for readability
         grid[i][j].setTexture(tileTextures[mapping[value][0]]);
         grid[i][j].setEdgeDataRef(mapping[value][0]);
         grid[i][j].setRotation(mapping[value][1]);
       }
     }
+  }
+  
+  public boolean shiftRowFocus(int n)
+  {
+    int test = focusRow + n;
+    int temp = rowShift;
+    int maxRowShift = wfValues.length - displayRows;
+    int middlingRow = (displayRows + 1)/ 2;
+    
+    if (test < 0)
+      focusRow = 0;
+    else if (test >= wfValues.length)
+      focusRow = wfValues.length - 1;
+    else
+      focusRow = test;
+    
+    if (focusRow < middlingRow)
+      rowShift = 0;
+    else if (focusRow >= wfValues.length - middlingRow)
+      rowShift = maxRowShift;
+    else
+      rowShift = focusRow + 1 - middlingRow;
+    
+    this.fixTextures();
+    
+    if (rowShift != temp)
+      return true;
+    else 
+      return false;
+  }
+  
+  public boolean shiftColFocus(int n)
+  {
+    int test = focusCol + n;
+    int temp = colShift;
+    int maxColShift = wfValues[0].length - displayCols;
+    int middlingCol = (displayCols + 1)/ 2;
+    
+    if (test < 0)
+      focusCol = 0;
+    else if (test >= wfValues[0].length)
+      focusCol = wfValues[0].length - 1;
+    else
+      focusCol = test;
+    
+    if (focusCol < middlingCol)
+    {
+      colShift = 0;
+    }
+    else if (focusCol >= wfValues[0].length - middlingCol)
+    {
+      colShift = maxColShift;
+    }
+    else
+    {
+      colShift = focusCol + 1 - middlingCol;
+    }
+    
+    this.fixTextures();
+    
+    if (colShift != temp)
+      return true;
+    else
+      return false;
+    
   }
   
   public void loadWaveFunction(boolean doMazeSet, int numRows, int numCols)
@@ -164,7 +239,7 @@ public class Map implements GShape
           {5, 5, 4, 1},
           {4, 1, 4, 1}};
       int[] rotationDataMaze = {1, 4, 2, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 2};
-      int[] weightsMaze =      {20, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0};
+      int[] weightsMaze =      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0};
       
       edgeData = edgeDataMaze;
       rotationData = rotationDataMaze;
@@ -190,13 +265,18 @@ public class Map implements GShape
       }
     }
     
+    focusRow = 0;
+    focusCol = 0;
+    rowShift = 0;
+    colShift = 0;
     this.fixTextures();
   }
   
   public int[] getEdgeData(int row, int col)
   {
-    int edgeRef = grid[row][col].getEdgeDataRef();
-    int rotation = grid[row][col].getRotation();
+    int value = wfValues[row][col];
+    int edgeRef = mapping[value][0];
+    int rotation = mapping[value][1];
     
     int[] newEdges = new int[this.edgeData[edgeRef].length];
     
@@ -206,6 +286,11 @@ public class Map implements GShape
     }
     
     return newEdges;
+  }
+  
+  public int[] getFocusEdgeData()
+  {
+    return getEdgeData(focusRow, focusCol);
   }
   
   public boolean saveToFile(String filename)
@@ -225,16 +310,16 @@ public class Map implements GShape
         for (int c = 0; c < wfValues[r].length; c++)
         {
           saveFile.write("" + wfValues[r][c]);
-          System.out.print(wfValues[r][c]);
+          //System.out.print(wfValues[r][c]);
           
           if (!(c == (wfValues[r].length - 1)))
           {
             saveFile.write(",");
-            System.out.print(",");
+            //System.out.print(",");
           }
         }
         saveFile.write("\n");
-        System.out.println();
+        //System.out.println();
       }
       
       saveFile.close();
@@ -300,6 +385,14 @@ public class Map implements GShape
         lineHead++;
       }
       scan.close();
+      
+      this.loadWaveFunction(true, r, c);
+      rowShift = 0;
+      colShift = 0;
+      focusRow = 0;
+      focusCol = 0;
+      displayRows = 9;
+      displayCols = 9;
       
       this.fixTextures();
     } 

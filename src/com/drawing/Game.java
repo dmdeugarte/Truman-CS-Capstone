@@ -31,10 +31,10 @@ public class Game implements GShape
   {
     this.vertex2f = Arrays.copyOf(vertex2f, vertex2f.length);
     
-    int numRows = 10, numCols = 10;
+    int numRows = 9, numCols = 9; // Display Rules
     factor = numRows > numCols ? (1f/numRows) : (1f/numCols);
     float[] mapData = {0, 0, factor, factor};
-    this.myMap = new Map(gl, mapData, true);
+    this.myMap = new Map(gl, mapData, true, numRows, numCols);
     
     float[] pcData = {pcRowPos*factor + factor/4, pcColPos*factor + factor/4, factor/2, factor/2};
     int[] pcEdgeData = {0, 0, 0, 0};
@@ -99,42 +99,48 @@ public class Game implements GShape
     }
     else
     {
+      myPC.setEdgeData(myMap.getFocusEdgeData());
       if (key == KeyEvent.VK_UP || key == KeyEvent.VK_W)
       {
-        // 0 means success
-        if (!myPC.moveUp(factor))
+        myPC.setRotation(0);
+        // if it can move (short circuit) and the map didn't shift, then move the PC render position
+        if ((myPC.canMoveUp() && pcRowPos != 0) && !myMap.shiftRowFocus(-1))
         {
+          myPC.moveUp(factor);
           pcRowPos -= 1;
-          myPC.setEdgeData(myMap.getEdgeData(pcRowPos, pcColPos));
         }
       }
       else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)
       {
-        if (!myPC.moveRight(factor))
+        myPC.setRotation(1);
+        if (myPC.canMoveRight() && pcColPos != 8 && !myMap.shiftColFocus(1))
         {
+          myPC.moveRight(factor);
           pcColPos += 1;
-          myPC.setEdgeData(myMap.getEdgeData(pcRowPos, pcColPos));
         }
       }
       else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S)
       {
-        if (!myPC.moveDown(factor))
+        myPC.setRotation(2);
+        if (myPC.canMoveDown() && pcRowPos != 8 && !myMap.shiftRowFocus(1))
         {
+          myPC.moveDown(factor);
           pcRowPos += 1;
-          myPC.setEdgeData(myMap.getEdgeData(pcRowPos, pcColPos));
         }
       }
       else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A)
       {
-        if (!myPC.moveLeft(factor))
+        myPC.setRotation(3);
+        if (myPC.canMoveLeft() && pcColPos != 0 && !myMap.shiftColFocus(-1))
         {
+          myPC.moveLeft(factor);
           pcColPos -= 1;
-          myPC.setEdgeData(myMap.getEdgeData(pcRowPos, pcColPos));
+          
         }
       }
       else if (key == KeyEvent.VK_SPACE)
       {
-        // tell player to fire
+        // tell player to fire OR
         // tell map to fix that tile
         System.out.println("Player attempted to fire");
       }
@@ -148,15 +154,21 @@ public class Game implements GShape
   
   private void processSelection(int selection)
   {
-    System.out.println(selection + " Selected: " + pauseOptions[selection]);
-    
     if (selection == 0) // New
     {
         gameLive = true;
         menuOpen = false;
         
-        myMap.loadWaveFunction(true, 10, 10);
-        myMap.runWaveFunction(10, 10);
+        myMap.loadWaveFunction(true, 20, 20);
+        myMap.runWaveFunction(20, 20);
+        
+        pcRowPos = 0;
+        pcColPos = 0;
+        
+        myPC.setX(pcRowPos*factor + factor/4);
+        myPC.setY(pcColPos*factor + factor/4);
+        
+        myPC.setEdgeData(myMap.getFocusEdgeData());
     }
     else if (selection == 1) // Load
     {

@@ -61,61 +61,100 @@ public class PlayerCharacter implements GShape
     this.edgeData = Arrays.copyOf(edgeData, edgeData.length);
   }
   
+  public boolean canMoveUp()
+  {
+    if ((edgeData[0]&2) == 0)
+      return true;
+    else
+      return false;
+  }
+  
+  public boolean canMoveRight()
+  {
+    if ((edgeData[1]&2) == 0)
+      return true;
+    else
+      return false;
+  }
+  
+  public boolean canMoveDown()
+  {
+    if ((edgeData[2]&2) == 0)
+      return true;
+    else
+      return false;
+  }
+  
+  public boolean canMoveLeft()
+  {
+    if ((edgeData[3]&2) == 0)
+      return true;
+    else
+      return false;
+  }
+  
   // if 0, success, otherwise fail
   public boolean moveUp(float speed)
   {
-    boolean failedMove = true;
+    boolean failedMove = false;
     // if before bottom, allow to keep moving down
     if (vertex2f[1] + vertex2f[3] - speed > 0 && (edgeData[0]&2) == 0)
     {
       vertex2f[1] -= speed;
-      failedMove = false;
+      failedMove = true;
     }
-    
-    rotation = 0;
     
     return failedMove;
   }
   public boolean moveRight(float speed)
   {
-    boolean failedMove = true;
+    boolean failedMove = false;
     if (vertex2f[0] + vertex2f[2] + speed < 1 && (edgeData[1]&2) == 0)
     {
       vertex2f[0] += speed;
-      failedMove = false;
+      failedMove = true;
     }
-    
-    rotation = 1;
     
     return failedMove;
   }
   public boolean moveDown(float speed)
   {
-    boolean failedMove = true;
+    boolean failedMove = false;
     // if before halfway up, allow to keep moving up
     if (vertex2f[1] + speed < 1 && (edgeData[2]&2) == 0)
     {
       vertex2f[1] += speed;
-      failedMove = false;
+      failedMove = true;
     }
-    
-    rotation = 2;
     
     return failedMove;
   }
   public boolean moveLeft(float speed)
   {
-    boolean failedMove = true;
+    boolean failedMove = false;
     // if before left, allow to keep moving left
     if (vertex2f[0] - speed > 0 && (edgeData[3]&2) == 0)
     {
       vertex2f[0] -= speed;
-      failedMove = false;
+      failedMove = true;
     }
     
-    rotation = 3;
-    
     return failedMove;
+  }
+  
+  public void setRotation(int rotation)
+  {
+    this.rotation = rotation;
+  }
+  
+  public void setX(float x)
+  {
+    vertex2f[0] = x;
+  }
+  
+  public void setY(float y)
+  {
+    vertex2f[1] = y;
   }
   
   private void renderQuad(final GL2 gl, Texture texture) 
